@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>לוח מחוונים אנליטי</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── Tokens ─────────────────────────────────────────────── */
+    :root {
+      --ink:        #0d1117;
+      --surface:    #f5f6fa;
+      --card:       #ffffff;
+      --border:     #e4e7ef;
+      --accent:     #2563eb;
+      --accent-dim: #dbeafe;
+      --positive:   #16a34a;
+      --negative:   #dc2626;
+      --muted:      #6b7280;
+      --rule:       1px solid var(--border);
+      --radius:     10px;
+      --shadow:     0 2px 12px rgba(0,0,0,.07);
+      --font:       'Heebo', 'Arial', sans-serif;
+    }
+
+    /* ─── Reset ──────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--surface);
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+
+    /* ─── Layout helpers ─────────────────────────────────────── */
+    .container {
+      width: 100%;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    .section { padding: 72px 0; }
+    .section-label {
+      display: inline-block;
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-dim);
+      padding: 4px 12px;
+      border-radius: 100px;
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-size: clamp(1.5rem, 3vw, 2.1rem);
+      font-weight: 700;
+      line-height: 1.25;
+      margin-bottom: 12px;
+    }
+    .section-sub {
+      color: var(--muted);
+      font-size: 1rem;
+      max-width: 540px;
+    }
+
+    /* ─── Nav ────────────────────────────────────────────────── */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255,255,255,.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: var(--rule);
+    }
+    .nav__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+    }
+    .nav__brand {
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav__brand-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: inline-block;
+    }
+    .nav__links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+    }
+    .nav__links a {
+      font-size: .9rem;
+      font-weight: 500;
+      color: var(--muted);
+      transition: color .2s;
+    }
+    .nav__links a:hover { color: var(--ink); }
+    .nav__cta {
+      background: var(--accent);
+      color: #fff;
+      font-size: .85rem;
+      font-weight: 600;
+      padding: 8px 20px;
+      border-radius: var(--radius);
+      transition: opacity .2s;
+    }
+    .nav__cta:hover { opacity: .85; }
+
+    /* ─── Hero ───────────────────────────────────────────────── */
+    .hero {
+      background: var(--ink);
+      color: #fff;
+      padding: 90px 0 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 80% at 110% 50%, rgba(37,99,235,.35) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 60% at -10% 80%, rgba(37,99,235,.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero__grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+    .hero__eyebrow {
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+    }
+    .hero__headline {
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+    .hero__headline em {
+      font-style: normal;
+      color: #60a5fa;
+    }
+    .hero__body {
+      font-size: 1.05rem;
+      color: rgba(255,255,255,.65);
+      margin-bottom: 36px;
+      max-width: 420px;
+    }
+    .hero__actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 26px;
+      border-radius: var(--radius);
+      font-size: .9rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all .2s;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-ghost {
+      background: rgba(255,255,255,.1);
+      color: rgba(255,255,255,.85);
+      border: 1px solid rgba(255,255,255,.2);
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,.18); }
+
+    /* hero visual */
+    .hero__visual {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .hero__mini-card {
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .hero__mini-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: rgba(37,99,235,.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .hero__mini-label { font-size: .78rem; color: rgba(255,255,255,.5); margin-bottom: 2px; }
+    .hero__mini-value { font-size: 1.15rem; font-weight: 700; }
+    .hero__mini-badge {
+      margin-right: auto;
+      font-size: .72rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 100px;
+    }
+    .badge-up { background: rgba(22,163,74,.2); color: #4ade80; }
+    .badge-down { background: rgba(220,38,38,.2); color: #f87171; }
+
+    /* ─── KPI Grid ───────────────────────────────────────────── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-top: 40px;
+    }
+    .kpi-card {
+      background: var(--card);
+      border: var(--rule);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      box-shadow: var(--shadow);
+      transition: box-shadow .2s, transform .2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--accent);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      opacity: 0;
+      transition: opacity .2s;
+    }
+    .kpi-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,.11); transform: translateY(-2px); }
+    .kpi-card:hover::after { opacity: 1; }
+    .kpi-label { font-size: .78rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; }
+    .kpi-value { font-size: 2rem; font-weight: 900; line-height: 1; margin-bottom: 10px; }
+    .kpi-delta {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: .8rem;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 100px;
+    }
+    .kpi-delta.up { background: #dcfce7; color: #15803d; }
+    .kpi-delta.down { background: #fee2e2; color: #b91c1c; }
+    .kpi-period { font-size: .78rem; color: var(--muted); margin-top: 8px; }
+
+    /* ─── Tableau Section ────────────────────────────────────── */
+    .tableau-section { background: #fff; border-top: var(--rule); border-bottom: var(--rule); }
+    .tableau-header { margin-bottom: 32px; }
+    .tableau-embed {
+      width: 100%;
+      height: 620px;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: var(--rule);
+      box-shadow: var(--shadow);
+      background: var(--surface);
+    }
+    .tableau-embed iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+    .tableau-note {
+      margin-top: 14px;
+      font-size: .8rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ─── Insights ───────────────────────────────────────────── */
+    .insights-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 40px;
+    }
+    .insight-card {
+      background: var(--card);
+      border: var(--rule);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: var(--shadow);
+    }
+    .insight-num {
+      font-size: 2.8rem;
+      font-weight: 900;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+    .insight-title { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+    .insight-body { font-size: .88rem; color: var(--muted); line-height: 1.65; }
+
+    /* ─── Footer ─────────────────────────────────────────────── */
+    .footer {
+      background: var(--ink);
+      color: rgba(255,255,255,.5);
+      padding: 40px 0;
+    }
+    .footer__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .footer__brand {
+      font-size: 1rem;
+      font-weight: 900;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .footer__links {
+      display: flex;
+      gap: 24px;
+      list-style: none;
+      flex-wrap: wrap;
+    }
+    .footer__links a { font-size: .85rem; transition: color .2s; }
+    .footer__links a:hover { color: #fff; }
+    .footer__copy { font-size: .78rem; }
+
+    /* ─── Scroll-in animation ────────────────────────────────── */
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity .55s ease, transform .55s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ─── Responsive ─────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .hero__grid { grid-template-columns: 1fr; }
+      .hero__visual { display: none; }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .insights-grid { grid-template-columns: 1fr 1fr; }
+      .nav__links { display: none; }
+    }
+    @media (max-width: 560px) {
+      .kpi-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
+      .kpi-value { font-size: 1.6rem; }
+      .insights-grid { grid-template-columns: 1fr; }
+      .section { padding: 52px 0; }
+      .hero { padding: 60px 0; }
+      .footer__inner { flex-direction: column; align-items: flex-start; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal { transition: none; opacity: 1; transform: none; }
+      .kpi-card, .btn { transition: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Navigation ──────────────────────────────────────────── -->
+  <nav class="nav">
+    <div class="container">
+      <div class="nav__inner">
+        <div class="nav__brand">
+          <span class="nav__brand-dot"></span>
+          לוח מחוונים
+        </div>
+        <ul class="nav__links">
+          <li><a href="#kpis">מדדים</a></li>
+          <li><a href="#dashboard">דשבורד</a></li>
+          <li><a href="#insights">תובנות</a></li>
+        </ul>
+        <a href="#dashboard" class="nav__cta btn">צפה בדשבורד</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── Hero ────────────────────────────────────────────────── -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero__grid">
+        <div class="hero__content">
+          <p class="hero__eyebrow">ניתוח עסקי · 2024–2025</p>
+          <h1 class="hero__headline">
+            נתונים חכמים,<br/>
+            <em>החלטות מדויקות</em>
+          </h1>
+          <p class="hero__body">
+            לוח מחוונים מרכזי המאגד את המדדים הקריטיים של הארגון —
+            ממכירות ועד שימור לקוחות — בתצוגה ברורה ועדכנית.
+          </p>
+          <div class="hero__actions">
+            <a href="#dashboard" class="btn btn-primary">← צפה בדשבורד</a>
+            <a href="#insights" class="btn btn-ghost">תובנות עיקריות</a>
+          </div>
+        </div>
+
+        <div class="hero__visual" aria-hidden="true">
+          <div class="hero__mini-card">
+            <div class="hero__mini-icon">📈</div>
+            <div>
+              <div class="hero__mini-label">הכנסות חודשיות</div>
+              <div class="hero__mini-value">₪ 4,820,000</div>
+            </div>
+            <span class="hero__mini-badge badge-up">+12%</span>
+          </div>
+          <div class="hero__mini-card">
+            <div class="hero__mini-icon">👥</div>
+            <div>
+              <div class="hero__mini-label">לקוחות פעילים</div>
+              <div class="hero__mini-value">18,340</div>
+            </div>
+            <span class="hero__mini-badge badge-up">+7%</span>
+          </div>
+          <div class="hero__mini-card">
+            <div class="hero__mini-icon">🎯</div>
+            <div>
+              <div class="hero__mini-label">שיעור המרה</div>
+              <div class="hero__mini-value">3.8%</div>
+            </div>
+            <span class="hero__mini-badge badge-down">−0.4%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── KPIs ─────────────────────────────────────────────────── -->
+  <section class="section" id="kpis">
+    <div class="container">
+      <span class="section-label">מדדי ביצועים</span>
+      <h2 class="section-title">תמונת מצב עדכנית</h2>
+      <p class="section-sub">נתוני אמת מעודכנים לרבעון האחרון, בהשוואה לתקופה המקבילה אשתקד.</p>
+
+      <div class="kpi-grid">
+        <div class="kpi-card reveal">
+          <div class="kpi-label">סך הכנסות</div>
+          <div class="kpi-value">₪54.2M</div>
+          <span class="kpi-delta up">▲ 14.3%</span>
+          <div class="kpi-period">לעומת Q3 2024</div>
+        </div>
+        <div class="kpi-card reveal">
+          <div class="kpi-label">לקוחות חדשים</div>
+          <div class="kpi-value">3,812</div>
+          <span class="kpi-delta up">▲ 8.1%</span>
+          <div class="kpi-period">רבעון נוכחי</div>
+        </div>
+        <div class="kpi-card reveal">
+          <div class="kpi-label">שיעור שימור</div>
+          <div class="kpi-value">87.5%</div>
+          <span class="kpi-delta down">▼ 1.2%</span>
+          <div class="kpi-period">ממוצע שנתי</div>
+        </div>
+        <div class="kpi-card reveal">
+          <div class="kpi-label">שביעות רצון</div>
+          <div class="kpi-value">4.6 / 5</div>
+          <span class="kpi-delta up">▲ 0.3</span>
+          <div class="kpi-period">סקר לקוחות Q4</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Tableau ───────────────────────────────────────────────── -->
+  <section class="section tableau-section" id="dashboard">
+    <div class="container">
+      <div class="tableau-header reveal">
+        <span class="section-label">ויזואליזציה</span>
+        <h2 class="section-title">דשבורד אינטראקטיבי</h2>
+        <p class="section-sub">לחצו על הגרפים לסינון וחקירה. הדשבורד מתעדכן בזמן אמת ממקורות הנתונים הארגוניים.</p>
+      </div>
+
+      <div class="tableau-embed reveal">
+        <iframe
+          src="https://public.tableau.com/views/theFirstOne/Dashboard1?:language=en-US&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link&:embed=y&:toolbar=yes&:animate_transition=yes&:display_static_image=no&:display_spinner=yes&:display_overlay=yes"
+          allowfullscreen
+          title="דשבורד אנליטי - Tableau Public"
+          loading="lazy"
+        ></iframe>
+      </div>
+
+      <p class="tableau-note">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        הדשבורד מופעל על Tableau Public. לחצו על סמל המסך המלא לחוויית צפייה מיטבית.
+      </p>
+    </div>
+  </section>
+
+  <!-- ── Insights ──────────────────────────────────────────────── -->
+  <section class="section" id="insights">
+    <div class="container">
+      <span class="section-label">תובנות</span>
+      <h2 class="section-title">ממצאים עיקריים</h2>
+      <p class="section-sub">סיכום הממצאים הבולטים מניתוח הנתונים לרבעון זה.</p>
+
+      <div class="insights-grid">
+        <div class="insight-card reveal">
+          <div class="insight-num">01</div>
+          <div class="insight-title">צמיחה בפלח הפרימיום</div>
+          <div class="insight-body">
+            מוצרי הפרימיום רשמו צמיחה של 22% ברבעון האחרון,
+            והם מהווים כעת 38% מסך ההכנסות — עלייה מ-29% בתחילת השנה.
+            מגמה זו מאשרת את ההחלטה להרחיב את קו המוצרים הפרימיום.
+          </div>
+        </div>
+        <div class="insight-card reveal">
+          <div class="insight-num">02</div>
+          <div class="insight-title">ירידה בשיעור הנטישה</div>
+          <div class="insight-body">
+            שיעור הנטישה ירד ל-4.2% — נמוך ב-1.8 נקודות אחוז לעומת השנה שעברה.
+            הטמעת תהליך Onboarding חדש נמצאת בקורלציה ישירה עם שיפור זה.
+          </div>
+        </div>
+        <div class="insight-card reveal">
+          <div class="insight-num">03</div>
+          <div class="insight-title">פוטנציאל בשוק B2B</div>
+          <div class="insight-body">
+            לקוחות עסקיים מייצרים ערך חיים ממוצע גבוה ב-3.4x מלקוחות פרטיים.
+            מומלץ להגביר את מאמצי המכירות בפלח זה בשני הרבעונות הקרובים.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer ────────────────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__inner">
+        <div class="footer__brand">
+          <span class="nav__brand-dot"></span>
+          לוח מחוונים אנליטי
+        </div>
+        <ul class="footer__links">
+          <li><a href="#kpis">מדדים</a></li>
+          <li><a href="#dashboard">דשבורד</a></li>
+          <li><a href="#insights">תובנות</a></li>
+        </ul>
+        <p class="footer__copy">© 2025 שם הארגון. כל הזכויות שמורות.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ── Scroll-reveal ──────────────────────────────────────────── -->
+  <script>
+    (function () {
+      const els = document.querySelectorAll('.reveal');
+      if (!('IntersectionObserver' in window)) {
+        els.forEach(el => el.classList.add('visible'));
+        return;
+      }
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach(e => {
+            if (e.isIntersecting) {
+              e.target.classList.add('visible');
+              observer.unobserve(e.target);
+            }
+          });
+        },
+        { threshold: 0.12 }
+      );
+      els.forEach(el => observer.observe(el));
+    })();
+  </script>
+</body>
+</html>
